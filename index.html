@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPPO Server Infrastructure - RedMagic Module Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #1fc7d4 0%, #9599e2 100%);
+            padding: 15px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .brand-logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .connection-arrow {
+            color: #00ff00;
+            animation: pulse 2s infinite;
+            font-size: 24px;
+        }
+
+        @keyframes pulse {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0,255,0,0.3);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .server-panel {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .server-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #1fc7d4, #9599e2, #ff6b6b);
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .oppo-title {
+            color: #1fc7d4;
+        }
+
+        .redmagic-title {
+            color: #ff6b6b;
+        }
+
+        .server-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .metric-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .connection-flow {
+            grid-column: 1 / -1;
+            margin: 30px 0;
+            padding: 30px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .flow-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 20px;
+            color: #00ff00;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .flow-node {
+            background: linear-gradient(135deg, #1fc7d4 0%, #9599e2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 150px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .flow-arrow {
+            color: #00ff00;
+            font-size: 30px;
+            animation: flowPulse 2s infinite;
+        }
+
+        @keyframes flowPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .log-section {
+            grid-column: 1 / -1;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .log-terminal {
+            background: #000000;
+            border-radius: 5px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #00ff00;
+        }
+
+        .log-line {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .log-success {
+            color: #00ff00;
+        }
+
+        .log-info {
+            color: #1fc7d4;
+        }
+
+        .log-warning {
+            color: #ffd700;
+        }
+
+        .timestamp {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .footer-stats {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(31,199,212,0.1) 0%, rgba(255,107,107,0.1) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #1fc7d4;
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #1fc7d4);
+            animation: loading 2s infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .uptime-counter {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #00ff00;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <div class="brand-logo">OPPO</div>
+            <div class="connection-arrow">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="brand-logo" style="color: #ff6b6b;">RedMagic</div>
+        </div>
+        <div class="server-status">
+            <div class="status-dot"></div>
+            <span>SERVER ACTIVE</span>
+            <i class="fas fa-shield-alt" style="color: #00ff00;"></i>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="server-panel">
+            <div class="panel-header">
+                <h2 class="panel-title oppo-title">OPPO Infrastructure</h2>
+                <i class="fas fa-server" style="color: #1fc7d4; font-size: 24px;"></i>
+            </div>
+            
+            <div class="server-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #00ff00;">99.9%</div>
+                    <div class="metric-label">Uptime</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #1fc7d4;">856ms</div>
+                    <div class="metric-label">Latency</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #ffd700;">47.2GB</div>
+                    <div class="metric-label">Data Transfer</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #ff6b6b;">12</div>
+                    <div class="metric-label">Active Connections</div>
+                </div>
+            </div>
+
+            <div class="loading-bar">
+                <div class="loading-progress" style="width: 89%;"></div>
+            </div>
+            <div style="text-align: center; color: #888; font-size: 12px;">CPU Usage: 89%</div>
+            
+            <div class="uptime-counter" id="oppo-uptime">
+                Uptime: <span id="oppo-time">00:00:00</span>
+            </div>
+        </div>
+
+        <div class="server-panel">
+            <div class="panel-header">
+                <h2 class="panel-title redmagic-title">RedMagic Module</h2>
+                <i class="fas fa-microchip" style="color: #ff6b6b; font-size: 24px;"></i>
+            </div>
+            
+            <div class="server-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #00ff00;">Active</div>
+                    <div class="metric-label">Status</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #1fc7d4;">2.4GHz</div>
+                    <div class="metric-label">Frequency</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #ffd700;">78°C</div>
+                    <div class="metric-label">Temperature</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" style="color: #ff6b6b;">16GB</div>
+                    <div class="metric-label">Memory</div>
+                </div>
+            </div>
+
+            <div class="loading-bar">
+                <div class="loading-progress" style="width: 76%; background: linear-gradient(90deg, #ff6b6b, #ff9068);"></div>
+            </div>
+            <div style="text-align: center; color: #888; font-size: 12px;">Module Load: 76%</div>
+            
+            <div class="uptime-counter" id="redmagic-uptime">
+                Runtime: <span id="redmagic-time">00:00:00</span>
+            </div>
+        </div>
+
+        <div class="connection-flow">
+            <div class="flow-title">
+                <i class="fas fa-network-wired"></i> Data Flow Pipeline
+            </div>
+            <div class="flow-diagram">
+                <div class="flow-node">
+                    <i class="fas fa-database" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    <div>OPPO Server</div>
+                    <small>Primary Node</small>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-node" style="background: linear-gradient(135deg, #00ff00 0%, #32cd32 100%);">
+                    <i class="fas fa-sync-alt fa-spin" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    <div>Processing</div>
+                    <small>Active</small>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-node" style="background: linear-gradient(135deg, #ff6b6b 0%, #ff9068 100%);">
+                    <i class="fas fa-magic" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    <div>RedMagic</div>
+                    <small>Module Active</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <div class="log-header">
+                <h3><i class="fas fa-terminal"></i> System Log Monitor</h3>
+                <div style="color: #00ff00;">
+                    <i class="fas fa-circle" style="font-size: 8px;"></i> Live Feed
+                </div>
+            </div>
+            <div class="log-terminal" id="log-terminal">
+                <div class="log-line log-success">
+                    <span class="timestamp">[2025-08-04 14:10:42]</span>
+                    INFO: OPPO server connection established successfully
+                </div>
+                <div class="log-line log-info">
+                    <span class="timestamp">[2025-08-04 14:10:43]</span>
+                    INFO: RedMagic module initialization complete
+                </div>
+                <div class="log-line log-success">
+                    <span class="timestamp">[2025-08-04 14:10:44]</span>
+                    SUCCESS: Data pipeline active - throughput 47.2GB/s
+                </div>
+                <div class="log-line log-info">
+                    <span class="timestamp">[2025-08-04 14:10:45]</span>
+                    INFO: Security protocols authenticated ✓
+                </div>
+                <div class="log-line log-success">
+                    <span class="timestamp">[2025-08-04 14:10:46]</span>
+                    SUCCESS: RedMagic performance optimization activated
+                </div>
+                <div class="log-line log-warning">
+                    <span class="timestamp">[2025-08-04 14:10:47]</span>
+                    WARN: High memory usage detected - 89% capacity
+                </div>
+                <div class="log-line log-success">
+                    <span class="timestamp">[2025-08-04 14:10:48]</span>
+                    INFO: Auto-scaling initiated for optimal performance
+                </div>
+                <div class="log-line log-info">
+                    <span class="timestamp">[2025-08-04 14:10:49]</span>
+                    INFO: Connection stability: EXCELLENT (899ms avg latency)
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-stats">
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: bold;">Global Network</div>
+                <div style="color: #00ff00;">12 Regions Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: bold;">Security Status</div>
+                <div style="color: #00ff00;">Fully Protected</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: bold;">Performance</div>
+                <div style="color: #00ff00;">Optimized</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div style="font-size: 18px; font-weight: bold;">Active Users</div>
+                <div style="color: #1fc7d4;">2,847 Online</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real-time clock simulation
+        let oppoSeconds = 0;
+        let redmagicSeconds = 0;
+
+        function updateUptime() {
+            oppoSeconds++;
+            redmagicSeconds++;
+            
+            const oppoTime = formatTime(oppoSeconds);
+            const redmagicTime = formatTime(redmagicSeconds);
+            
+            document.getElementById('oppo-time').textContent = oppoTime;
+            document.getElementById('redmagic-time').textContent = redmagicTime;
+        }
+
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Simulated live log updates
+        const logMessages = [
+            { type: 'success', message: 'Data synchronization complete' },
+            { type: 'info', message: 'RedMagic module temperature: 78°C (Normal)' },
+            { type: 'success', message: 'OPPO server response time: 856ms' },
+            { type: 'info', message: 'Background process optimization running' },
+            { type: 'success', message: 'Connection integrity verified' },
+            { type: 'info', message: 'Cache cleared and rebuilt successfully' },
+            { type: 'warning', message: 'Scheduled maintenance in 24 hours' },
+            { type: 'success', message: 'RedMagic processing speed increased 15%' }
+        ];
+
+        let logIndex = 0;
+
+        function addLogMessage() {
+            const terminal = document.getElementById('log-terminal');
+            const now = new Date();
+            const timestamp = now.toISOString().slice(0, 19).replace('T', ' ');
+            
+            const message = logMessages[logIndex % logMessages.length];
+            const logLine = document.createElement('div');
+            logLine.className = `log-line log-${message.type}`;
+            logLine.innerHTML = `<span class="timestamp">[${timestamp}]</span>${message.type.toUpperCase()}: ${message.message}`;
+            
+            terminal.appendChild(logLine);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Keep only last 20 log entries
+            if (terminal.children.length > 20) {
+                terminal.removeChild(terminal.firstChild);
+            }
+            
+            logIndex++;
+        }
+
+        // Start timers
+        setInterval(updateUptime, 1000);
+        setInterval(addLogMessage, 5000);
+
+        // Initialize with some starting time
+        oppoSeconds = Math.floor(Math.random() * 86400); // Random uptime up to 24 hours
+        redmagicSeconds = Math.floor(Math.random() * 43200); // Random runtime up to 12 hours
+        updateUptime();
+
+        // Add some interactive effects
+        document.querySelectorAll('.metric-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(31,199,212,0.1)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.background = 'rgba(255,255,255,0.03)';
+            });
+        });
+    </script>
+</body>
+</html>
